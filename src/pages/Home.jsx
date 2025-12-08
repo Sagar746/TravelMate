@@ -12,7 +12,7 @@ function Home() {
           </p>
           <Link to="/dashboard" className="btn-hero">
             Get Started
-          </Link>
+          </Link> 
         </div>
       </section>
 
