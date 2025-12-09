@@ -13,6 +13,7 @@ function Expenses() {
   useEffect(() => {
     fetchTripData();
   }, [id]);
+  
 
   const fetchTripData = async () => {
     try {
