@@ -10,6 +10,7 @@ function Login() {
     email: '',
     password: '',
     full_name: ''
+    
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
