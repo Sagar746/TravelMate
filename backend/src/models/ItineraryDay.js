@@ -7,6 +7,7 @@ const ItineraryDay = sequelize.define('ItineraryDay', {
     primaryKey: true,
     autoIncrement: true
   },
+  
   trip_id: {
     type: DataTypes.INTEGER,
     allowNull: false,

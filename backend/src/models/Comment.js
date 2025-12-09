@@ -7,6 +7,7 @@ const Comment = sequelize.define('Comment', {
     primaryKey: true,
     autoIncrement: true
   },
+  
   trip_id: {
     type: DataTypes.INTEGER,
     allowNull: false,

@@ -16,6 +16,7 @@ const TripCollaborator = sequelize.define('TripCollaborator', {
     },
     onDelete: 'CASCADE'
   },
+  
   user_id: {
     type: DataTypes.INTEGER,
     allowNull: false,

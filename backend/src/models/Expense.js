@@ -7,6 +7,7 @@ const Expense = sequelize.define('Expense', {
     primaryKey: true,
     autoIncrement: true
   },
+  
   trip_id: {
     type: DataTypes.INTEGER,
     allowNull: false,

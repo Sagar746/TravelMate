@@ -6,6 +6,7 @@ import Image from './Image.js';
 import Comment from './Comment.js';
 import TripCollaborator from './TripCollaborator.js';
 
+
 // Define associations
 
 // User - Trip (One-to-Many)
