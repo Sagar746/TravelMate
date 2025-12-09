@@ -1,45 +1,19 @@
 import axiosInstance from './axiosInstance';
 
-// Mock data for development (remove when backend is ready)
-const mockTrips = [
-  {
-    id: 1,
-    name: 'Summer Vacation 2025',
-    destination: 'Paris, France',
-    startDate: '2025-07-01',
-    endDate: '2025-07-15',
-    budget: 3000,
-    description: 'Exploring the city of lights',
-    expenses: [
-      { amount: 45, category: 'Food', date: '2025-07-01', description: 'Dinner at cafe' },
-      { amount: 120, category: 'Accommodation', date: '2025-07-01', description: 'Hotel night 1' }
-    ],
-    totalExpenses: 165,
-    days: 14
-  },
-  {
-    id: 2,
-    name: 'Beach Getaway',
-    destination: 'Bali, Indonesia',
-    startDate: '2025-08-10',
-    endDate: '2025-08-20',
-    budget: 2500,
-    description: 'Relaxing on tropical beaches',
-    expenses: [],
-    totalExpenses: 0,
-    days: 10
-  }
-];
+// No mock data: API must be available for app to work
+const mockTrips = [];
 
 // Get all trips
 export const getTrips = async () => {
   try {
     const response = await axiosInstance.get('/trips');
-    return response.data;
+    // Backend returns { success, message, data }
+    const trips = response.data.data;
+    // Map backend snake_case to frontend camelCase
+    return trips.map(mapTripFromApi);
   } catch (error) {
-    console.log('Using mock data - backend not available');
-    // Return mock data if backend is not available
-    return mockTrips;
+    // Do not fall back to mock data. Let caller handle the error.
+    throw error;
   }
 };
 
@@ -47,31 +21,31 @@ export const getTrips = async () => {
 export const getTripById = async (id) => {
   try {
     const response = await axiosInstance.get(`/trips/${id}`);
-    return response.data;
+    return mapTripFromApi(response.data.data);
   } catch (error) {
-    console.log('Using mock data - backend not available');
-    // Return mock data if backend is not available
-    return mockTrips.find(trip => trip.id === parseInt(id)) || null;
+    // Do not fall back to mock data. Let caller handle the error.
+    throw error;
   }
 };
 
 // Create new trip
 export const createTrip = async (tripData) => {
   try {
-    const response = await axiosInstance.post('/trips', tripData);
-    return response.data;
-  } catch (error) {
-    console.log('Using mock data - backend not available');
-    // Return mock data if backend is not available
-    const newTrip = {
-      id: Date.now(),
-      ...tripData,
-      expenses: [],
-      totalExpenses: 0,
-      days: 0
+    // Convert camelCase frontend fields to snake_case expected by backend
+    const payload = {
+      name: tripData.name,
+      destination: tripData.destination,
+      start_date: tripData.startDate,
+      end_date: tripData.endDate,
+      budget: tripData.budget ? parseFloat(tripData.budget) : null,
+      description: tripData.description
     };
-    mockTrips.push(newTrip);
-    return newTrip;
+
+    const response = await axiosInstance.post('/trips', payload);
+    return mapTripFromApi(response.data.data);
+  } catch (error) {
+    // Do not fall back to mock data. Let caller handle the error.
+    throw error;
   }
 };
 
@@ -79,22 +53,32 @@ export const createTrip = async (tripData) => {
 export const addExpense = async (tripId, expenseData) => {
   try {
     const response = await axiosInstance.post(`/trips/${tripId}/expenses`, expenseData);
-    return response.data;
+    return response.data.data;
   } catch (error) {
-    console.log('Using mock data - backend not available');
-    // Return mock data if backend is not available
-    const newExpense = {
-      id: Date.now(),
-      ...expenseData
-    };
-    const trip = mockTrips.find(t => t.id === parseInt(tripId));
-    if (trip) {
-      trip.expenses.push(newExpense);
-      trip.totalExpenses += parseFloat(expenseData.amount);
-    }
-    return newExpense;
+    // Do not fall back to mock data. Let caller handle the error.
+    throw error;
   }
 };
+
+// Helper: map trip object from backend (snake_case) to frontend (camelCase)
+function mapTripFromApi(trip) {
+  if (!trip) return trip;
+  return {
+    ...trip,
+    id: trip.id,
+    name: trip.name,
+    destination: trip.destination,
+    startDate: trip.start_date,
+    endDate: trip.end_date,
+    budget: trip.budget,
+    description: trip.description,
+    totalExpenses: trip.totalExpenses ?? 0,
+    days: trip.days ?? Math.ceil((new Date(trip.end_date) - new Date(trip.start_date)) / (1000 * 60 * 60 * 24)),
+    expenses: trip.expenses || [],
+    images: trip.images || [],
+    collaborators: trip.collaborators || []
+  };
+}
 
 // Upload image
 export const uploadImage = async (tripId, imageFile) => {

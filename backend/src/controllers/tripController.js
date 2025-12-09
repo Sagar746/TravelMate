@@ -88,7 +88,6 @@ export const createTrip = async (req, res, next) => {
   try {
     const { name, destination, start_date, end_date, budget, description, status } = req.body;
     const userId = req.user.id;
-
     const trip = await Trip.create({
       user_id: userId,
       name,

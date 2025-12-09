@@ -12,11 +12,15 @@ const axiosInstance = axios.create({
 // Request interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
-    // You can add auth tokens here if needed
-    // const token = localStorage.getItem('token');
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+    // Attach auth token from localStorage when available
+    try {
+      const token = localStorage.getItem('token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (e) {
+      // Ignore localStorage access errors (e.g., server-side rendering)
+    }
     return config;
   },
   (error) => {
@@ -32,6 +36,18 @@ axiosInstance.interceptors.response.use(
   (error) => {
     // Handle errors globally
     console.error('API Error:', error.response?.data || error.message);
+
+    // If unauthorized, clear token and redirect to login so user can re-authenticate
+    try {
+      if (error.response && error.response.status === 401) {
+        try { localStorage.removeItem('token'); localStorage.removeItem('user'); } catch (e) {}
+        // Small delay to ensure any UI state updates complete
+        setTimeout(() => { window.location.href = '/login'; }, 100);
+      }
+    } catch (e) {
+      // ignore redirect errors
+    }
+
     return Promise.reject(error);
   }
 );
