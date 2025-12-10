@@ -191,7 +191,7 @@ backend/
 
 
 ## Database Structure
-[img](travelmate.png)
+![img](travelmate.png)
 
 
 
@@ -511,4 +511,5 @@ CLIENT_URL=http://localhost:3000
 ---
 
 **Ready to start building? Follow the implementation steps and refer to this plan throughout development!**
+
 
